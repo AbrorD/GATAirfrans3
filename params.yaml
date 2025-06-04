@@ -1,0 +1,84 @@
+GraphSAGE:
+  encoder: [7, 64, 64, 8]
+  decoder: [8, 64, 64, 4]
+
+  nb_hidden_layers: 3
+  size_hidden_layers: 64
+  batch_size: 1
+  nb_epochs: 398
+  lr: 0.001
+  max_neighbors: 64
+  bn_bool: True
+  subsampling: 32000
+  r: 0.05
+
+PointNet:
+  encoder: [7, 64, 64, 8]
+  decoder: [8, 64, 64, 4]
+
+  base_nb: 8
+  batch_size: 1
+  nb_epochs: 398
+  lr: 0.001
+  subsampling: 32000
+
+MLP:
+  encoder: [7, 64, 64, 8]
+  decoder: [8, 64, 64, 4]
+
+  nb_hidden_layers: 3
+  size_hidden_layers: 64
+  batch_size: 1
+  nb_epochs: 398
+  lr: 0.001
+  bn_bool: True
+  subsampling: 32000
+
+GUNet:
+  encoder: [7, 64, 64, 8]
+  decoder: [8, 64, 64, 4]
+
+  layer: 'SAGE'
+  pool: 'random'
+  nb_scale: 5
+  pool_ratio: [.5, .5, .5, .5]
+  list_r: [.05, .2, .5, 1, 10]
+  size_hidden_layers: 8
+  batchnorm: True
+  res: False
+
+  batch_size: 1
+  nb_epochs: 398
+  lr: 0.001
+  max_neighbors: 64
+  subsampling: 32000
+  r: 0.05
+
+GAT:
+  encoder: [7, 64, 64, 8]       # Input ke GAT adalah 8 fitur
+  decoder: [8, 64, 64, 4]        # Output dari GAT adalah 8 fitur
+
+  # Parameter GAT (sesuai dengan models/GAT.py yang lebih baru)
+  gat_layers: 2                 # Jumlah layer GATConv. Coba 2 dulu, bukan 3.
+  gat_hidden_channels_per_head: 16 # Fitur per head untuk layer tersembunyi GAT.
+  heads: 4                      # Jumlah attention heads (digunakan di semua layer GAT).
+  dropout_gat: 0.6              # Dropout untuk GATConv.
+
+  concat_hidden_gat: false      # <<<--- PENTING: Set false untuk mengurangi memori di layer tersembunyi.
+                                # Jika false, output layer GAT tersembunyi akan (heads * hidden_channels_per_head) / heads = hidden_channels_per_head
+                                # Jika true, outputnya akan heads * hidden_channels_per_head
+  concat_output_gat: true       # Bagaimana output dari layer GAT terakhir (sebelum decoder) dihasilkan.
+                                # Jika true: output GAT terakhir akan dim_before_decoder (8).
+                                #            out_channels GATConv terakhir = (dim_before_decoder / heads) = 8 / 4 = 2.
+                                # Jika false: output GAT terakhir akan dim_before_decoder (8).
+                                #             out_channels GATConv terakhir = dim_before_decoder = 8.
+                                #             (Model GAT.py sudah menghandle ini)
+
+  # Parameter training umum
+  batch_size: 1
+  nb_epochs: 200 # Mungkin kurangi dulu untuk tes memori
+  lr: 0.001
+  max_neighbors: 64
+  bn_bool: true                 # Untuk Encoder/Decoder MLP
+  subsampling: 2048             # <<<--- PENTING: Turunkan secara signifikan dari 32000. Mulai dengan 2048 atau 4096.
+  r: 0.05
